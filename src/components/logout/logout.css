@@ -1,0 +1,9 @@
+.logout-button {
+    width: 70px;
+    height: 25px;
+    outline: none;
+    cursor: pointer;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}

@@ -1,0 +1,64 @@
+.phone-label {
+    display: inline-block;
+    width: 75px;
+    height: auto;
+}
+
+#phone-label-textarea {
+    position: relative;
+    bottom: 190px;
+}
+
+#phone-input-name {
+    outline: none;
+    width: 222px;
+    border: 1px solid black;
+}
+
+#phone-input-adress {
+    margin-top: 5px;
+    outline: none;
+    width: 220px;
+    height: 200px;
+    resize: none;
+    border: 1px solid black;
+}
+
+.phone-nav-button-container {
+    margin-left: 75px;
+}
+
+.phone-nav-button {
+    width: 70px;
+    height: 25px;
+    outline: none;
+    cursor: pointer;
+}
+
+.phone-nav-button:nth-child(2) {
+    margin-left: 85px;
+}
+
+.phone-menu-button-container {
+    width: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 45px;
+    right: 50px;
+}
+
+.phone-menu-button-container button {
+    width: 70px;
+    height: 25px;
+    outline: none;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.phone-menu-button-container input {
+    width: 0;
+    height: 0;
+}
