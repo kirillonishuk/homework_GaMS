@@ -24,5 +24,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "nw-builder": "^3.5.4"
+  }
 }
