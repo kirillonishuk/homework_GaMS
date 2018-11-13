@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import './phone.css';
 import AuthContext from '../../context/LogginContext';
 import saveAs from 'file-saver';
+import ModalConfirm from '../modalConfirm/modal';
 
 class PhoneList extends Component {
     static contextType = AuthContext;
@@ -10,7 +11,12 @@ class PhoneList extends Component {
         name: '',
         adress: '',
         list: [],
-        isSelect: null
+        isSelect: null,
+        showConfirmModal: false,
+        textConfirmModal: '',
+        onOKConfirmModal: () => { console.log(1) },
+        onCANCELConfirmModal: () => { this.setState({ showConfirmModal: false }) },
+        searchField: ''
     };
 
     loadList = (event) => {
@@ -72,8 +78,25 @@ class PhoneList extends Component {
                 list:
                     prevState.list.concat({ name: this.state.name, adress: this.state.adress }),
                 isSelect:
-                    prevState.list.length
+                    prevState.list.length,
+                showConfirmModal:
+                    false
             }));
+    }
+
+    onAddAdress = (event) => {
+        event.preventDefault();
+        if (this.state.showConfirmModal) return;
+        if (this.state.name && this.state.adress) {
+            this.setState({
+                textConfirmModal: <span>You want to add user <b>{this.state.name}</b> in address book?</span>,
+                onOKConfirmModal: this.addAdress
+            }, () => {
+                this.setState({
+                    showConfirmModal: true
+                })
+            });
+        }
     }
 
     editAdress = (event) => {
@@ -85,14 +108,35 @@ class PhoneList extends Component {
         });
     }
 
-    removeAdress = (event) => {
+    onRemoveAdress = (event) => {
+        event.preventDefault();
         if (!this.state.list.length) return;
+        if (this.state.showConfirmModal) return;
+        this.setState({
+            textConfirmModal: <span>You want to delete user <b>{this.state.name}</b> from address book?</span>,
+            onOKConfirmModal: this.removeAdress
+        }, () => {
+            this.setState({
+                showConfirmModal: true
+            })
+        });
+    }
+
+    removeAdress = (event) => {
+        event.preventDefault();
+        if (!this.state.list.length) {
+            this.setState({
+                showConfirmModal: false
+            })
+            return;
+        }
         if (this.state.list.length === 1) {
             this.setState({
                 list: [],
                 isSelect: null,
                 name: '',
-                adress: ''
+                adress: '',
+                showConfirmModal: false
             });
         } else {
             event.preventDefault();
@@ -101,23 +145,19 @@ class PhoneList extends Component {
             let isSelect = this.state.isSelect;
             if (!isSelect) step = 1;
             list.splice(isSelect, 1);
-            console.log(list);
-            console.log(this.state.list);
-            console.log(step);
-            console.log(isSelect);
-            
+
             this.setState({
                 list: [...list],
                 isSelect: isSelect,
                 name: this.state.list[isSelect + step].name,
-                adress: this.state.list[isSelect + step].adress
+                adress: this.state.list[isSelect + step].adress,
+                showConfirmModal: false
             });
         };
     }
 
     onNavigation = (event, step) => {
         event.preventDefault();
-        console.log(step, this.state.isSelect)
         if ((this.state.isSelect === 0 && step === -1) ||
             (this.state.isSelect === null && step === -1) ||
             (this.state.isSelect === this.state.list.length - 1 && step === 1) ||
@@ -133,6 +173,63 @@ class PhoneList extends Component {
         }))
     }
 
+    changeSearchField = (event) => {
+        this.setState({
+            searchField: event.target.value
+        });
+    }
+
+    onSearchUser = (event) => {
+        event.preventDefault();
+        if (this.state.showConfirmModal) return;
+        this.setState({
+            textConfirmModal: <Fragment>
+                <span>{`Enter Name:  `}</span>
+                <input type="text" onChange={this.changeSearchField} />
+            </Fragment>,
+            onOKConfirmModal: this.searchUser
+        }, () => {
+            this.setState({
+                showConfirmModal: true
+            })
+        });
+    }
+
+    searchUser = (event) => {
+        let isFound = false;
+        for (let i = 0; i < this.state.list.length; i++) {
+            if (this.state.list[i].name
+                .toLocaleLowerCase()
+                .indexOf(this.state.searchField.toLocaleLowerCase()) !== -1) {
+                isFound = true;
+                this.setState({
+                    name: this.state.list[i].name,
+                    adress: this.state.list[i].adress,
+                    isSelect: i,
+                    showConfirmModal: false
+                });
+                break;
+            }
+        }
+        if (!isFound) {
+            this.setState({
+                name: '',
+                adress: '',
+                isSelect: null,
+                showConfirmModal: false
+            })
+        };
+    }
+
+    editAdress = (event) => {
+        event.preventDefault();
+        let list = this.state.list;
+        list[this.state.isSelect] = { name: this.state.name, adress: this.state.adress };
+        this.setState({
+            list: [...list]
+        });
+    }
+
     render() {
 
 
@@ -140,19 +237,26 @@ class PhoneList extends Component {
             <Fragment>
                 {this.context.isAuth ?
                     <div>
+                        <ModalConfirm
+                            isVisible={this.state.showConfirmModal}
+                            text={this.state.textConfirmModal}
+                            onOKClick={this.state.onOKConfirmModal}
+                            onCANCELClick={this.state.onCANCELConfirmModal}
+                        />
                         <label htmlFor="phone-input-name" className="phone-label">Name: </label>
                         <input type="text" id="phone-input-name" value={this.state.name} onChange={this.changeName} /><br />
                         <label htmlFor="phone-input-adress" id="phone-label-textarea" className="phone-label">Adress: </label>
                         <textarea id="phone-input-adress" value={this.state.adress} onChange={this.changeAdress} />
                         <div className="phone-nav-button-container">
                             <button onClick={(event => this.onNavigation(event, -1))} className="phone-nav-button">Prev</button>
+                            <div className="nav-number">{this.state.isSelect === 0 || this.state.isSelect ? this.state.isSelect + 1 : null}</div>
                             <button onClick={(event => this.onNavigation(event, 1))} className="phone-nav-button">Next</button>
                         </div>
                         <div className="phone-menu-button-container">
-                            <button onClick={this.addAdress}>Add</button>
+                            <button onClick={this.onAddAdress}>Add</button>
                             <button onClick={this.editAdress}>Edit</button>
-                            <button onClick={this.removeAdress}>Remove</button>
-                            <button>Find</button>
+                            <button onClick={this.onRemoveAdress}>Remove</button>
+                            <button onClick={this.onSearchUser}>Find</button>
                             <button onClick={this.loadList}>Load...</button>
                             <input
                                 type="file"

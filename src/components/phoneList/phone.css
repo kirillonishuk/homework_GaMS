@@ -28,6 +28,13 @@
     margin-left: 75px;
 }
 
+.nav-number {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    margin-left: 32.5px;
+}
+
 .phone-nav-button {
     width: 70px;
     height: 25px;
@@ -35,8 +42,8 @@
     cursor: pointer;
 }
 
-.phone-nav-button:nth-child(2) {
-    margin-left: 85px;
+.nav-number+.phone-nav-button {
+    margin-left: 32.5px;
 }
 
 .phone-menu-button-container {
